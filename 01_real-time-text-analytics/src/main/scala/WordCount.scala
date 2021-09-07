@@ -1,26 +1,24 @@
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.kafka.streams._
+import org.apache.kafka.common.serialization._
 
-import java.time.Duration
-import java.util
 import java.util.Properties
-import scala.jdk.CollectionConverters._
 
 object WordCount {
   def main(args: Array[String]): Unit = {
-    val properties = new Properties()
-    properties.put("bootstrap.servers", "localhost:29092")
-    properties.put("group.id", "consumer-tutorial")
-    properties.put("key.deserializer", classOf[StringDeserializer])
-    properties.put("value.deserializer", classOf[StringDeserializer])
-
-    val consumer: KafkaConsumer[String, String] = new KafkaConsumer[String, String](properties)
-    consumer.subscribe(util.Arrays.asList("my-topic"))
-
-    while (true) {
-      val record = consumer.poll(Duration.ofMillis(1000)).asScala
-      for (data <- record)
-        println(data.value())
+    val config = {
+      val properties = new Properties()
+      properties.put(StreamsConfig.APPLICATION_ID_CONFIG, "stream-application")
+      properties.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092")
+      properties.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass)
+      properties.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass)
+      properties
     }
+
+    val builder = new StreamsBuilder()
+    val sourceStream = builder.stream("SourceTopic")
+    sourceStream.to("SinkTopic")
+
+    val streams = new KafkaStreams(builder.build(), config)
+    streams.start()
   }
 }
