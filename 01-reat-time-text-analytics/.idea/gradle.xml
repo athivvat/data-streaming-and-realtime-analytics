@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ScalaSbtSettings">
-    <option name="customVMPath" />
+  <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
-      <SbtProjectSettings>
+      <GradleProjectSettings>
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/project" />
           </set>
         </option>
-        <option name="sbtVersion" value="1.5.5" />
-      </SbtProjectSettings>
+      </GradleProjectSettings>
     </option>
   </component>
 </project>
