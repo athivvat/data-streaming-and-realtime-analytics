@@ -1,11 +1,13 @@
 # 01. Real-Time Text Analytics
 
-### Scenario
+## Scenario
 Customers need to send a text about "Harry Potter" into the system every 1 second then return how many of the `Harry`
 words in every 5 seconds. If the input doesn't have words the system should return 0.
 
-### System Architecture
+## Architecture Pipeline
+![image](architecture-pipeline.png)
 
+## Guildlines Steps
 **Create Topic**
 - Source `streams-plaintext-input`
 ```shell
