@@ -36,7 +36,8 @@ public class WordCount {
                 .flatMapValues(value -> Arrays.asList(value.toLowerCase(Locale.getDefault()).split(" ")))
                 .groupBy((key, value) -> value)
                 .windowedBy(TimeWindows.of(Duration.ofSeconds(TIME_WINDOW_SIZE)))
-                .count();
+                .count()
+                .filter((key, value) -> key.key().equals("harry"));
 
         final Serde<Windowed<String>> windowedSerde = WindowedSerdes.timeWindowedSerdeFrom(String.class, TIME_WINDOW_SIZE);
 
