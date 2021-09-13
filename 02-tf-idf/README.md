@@ -19,13 +19,3 @@ kafka-topics.sh --bootstrap-server localhost:29092 \
 kafka-topics.sh --bootstrap-server localhost:29092 \
   --create --topic word-output
 ```
-
-**Producer**
-```shell
-python producer.py
-```
-
-**Consume**
-```shell
-python tf_idf.py
-```
