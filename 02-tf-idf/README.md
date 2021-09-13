@@ -4,7 +4,7 @@ TF-IDF (term frequency–inverse document frequency) is a numerical statistic th
 a word is to a document in a collection or corpus.
 
 ## Pipeline Architecture
-
+![image](pipeline-architecture.png)
 ## Guideline Steps
 
 **Create Topic**

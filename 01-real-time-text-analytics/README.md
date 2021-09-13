@@ -5,7 +5,7 @@ Customers need to send a text about "Harry Potter" into the system every 1 secon
 words in every 5 seconds. If the input doesn't have words the system should return 0.
 
 ## Architecture Pipeline
-![image](architecture-pipeline.png)
+![image](pipeline-architecture.png)
 
 ## Guildlines Steps
 **Create Topic**

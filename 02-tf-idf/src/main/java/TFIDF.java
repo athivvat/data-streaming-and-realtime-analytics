@@ -1,63 +1,44 @@
-/*
- * Term frequency-inverse document frequency (TF-IDF)
- * Example code "examples/src/main/java/org/apache/spark/examples/ml/JavaTfIdfExample.java" in the Spark repo.
- */
-
-import org.apache.spark.ml.feature.HashingTF;
-import org.apache.spark.ml.feature.IDF;
-import org.apache.spark.ml.feature.IDFModel;
-import org.apache.spark.ml.feature.Tokenizer;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.DataTypes;
-import org.apache.spark.sql.types.Metadata;
-import org.apache.spark.sql.types.StructField;
-import org.apache.spark.sql.types.StructType;
+import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.sql.*;
+import org.apache.spark.sql.streaming.StreamingQuery;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class TFIDF {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        String bootstrapServers = "localhost:29092";
+        String subscribeType = "subscribe";
+        String SourceTopic = "plaintext-input";
+        String SinkTopic = "word-output";
+
         SparkSession spark = SparkSession
                 .builder()
                 .appName("TF-IDF")
                 .master("local[1]")
                 .getOrCreate();
 
-        // Example data
-        List<Row> data = Arrays.asList(
-                RowFactory.create(0.0, "Hi I heard about Spark"),
-                RowFactory.create(0.0, "I wish Java could use case classes"),
-                RowFactory.create(1.0, "Logistic regression models are neat")
-        );
+        spark.sparkContext().setLogLevel("ERROR");
 
-        StructType schema = new StructType(new StructField[]{
-                new StructField("label", DataTypes.DoubleType, false, Metadata.empty()),
-                new StructField("sentence", DataTypes.StringType, false, Metadata.empty())
-        });
+        // Read data stream from Kafka
+        Dataset<String> doc = spark.readStream()
+                .format("kafka")
+                .option("kafka.bootstrap.servers", bootstrapServers)
+                .option(subscribeType, SourceTopic)
+                .load()
+                .selectExpr("CAST(value as STRING)")
+                .as(Encoders.STRING());
 
-        Dataset<Row> sentenceData = spark.createDataFrame(data, schema);
+        // Generate running word count
+        Dataset<Row> wordCounts = doc.flatMap(
+                (FlatMapFunction<String, String>) x -> Arrays.asList(x.split(" ")).iterator(),
+                Encoders.STRING()).groupBy("value").count();
 
-        Tokenizer tokenizer = new Tokenizer().setInputCol("sentence").setOutputCol("words");
-        Dataset<Row> wordData = tokenizer.transform(sentenceData);
+        StreamingQuery query = wordCounts
+                .writeStream()
+                .outputMode("complete")
+                .format("console")
+                .start();
 
-        int numFeatures = 20;
-        HashingTF hashingTF = new HashingTF()
-                .setInputCol("words")
-                .setOutputCol("rawFeatures")
-                .setNumFeatures(numFeatures);
-
-        Dataset<Row> featurizedData = hashingTF.transform(wordData);
-
-        IDF idf = new IDF().setInputCol("rawFeatures").setOutputCol("features");
-        IDFModel idfModel = idf.fit(featurizedData);
-
-        Dataset<Row> rescaledData = idfModel.transform(featurizedData);
-        rescaledData.select("label", "features").show();
-
-        spark.stop();
+        query.awaitTermination();
     }
 }
