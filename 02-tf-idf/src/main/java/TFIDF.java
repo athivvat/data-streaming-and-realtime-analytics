@@ -6,7 +6,6 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
