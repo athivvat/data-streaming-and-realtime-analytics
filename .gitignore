@@ -30,3 +30,4 @@ TAGS
 Vagrantfile.local
 /logs
 .DS_Store
+checkpoint
