@@ -35,10 +35,17 @@ public class TFIDF {
                 .as(Encoders.STRING());
 
 
+        // TODO : Cumulative documents
+        // Spark User Defined Aggregate Functions (UDAFs)
+        // doc.cumulativeDocuments(function(...append new document to spark persistent tables...))
+        //    .selectAllDocument(function(...spark.sql("SELECT * FROM documents").toDF()...))
+        //    .tfidf(function(...code in step 2...))
+
+
         // STEP 2: TF-IDF
         // Example code at "examples/src/main/java/org/apache/spark/examples/ml/JavaTfIdfExample.java" in the Spark repo.
 
-        // Sample documents
+        /* Sample documents */
         List<Row> data = Arrays.asList(
                 RowFactory.create(0.0, "PYTHON HIVE HIVE"),
                 RowFactory.create(0.1, "JAVA JAVA SQL")
@@ -74,6 +81,7 @@ public class TFIDF {
         rescaledData.select("label", "features").show(false);
 
         // STEP 3: Write data to Kafka
+        // TODO: Design output stream
         StreamingQuery query = doc.selectExpr("CAST(value as STRING)")
                 .writeStream()
                 .format("kafka")
